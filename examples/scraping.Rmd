@@ -11,6 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Scraping
 
+Motivating example: https://ftp.rma.usda.gov/pub/references/adm_livestock/
+
+
 ```{r}
 library(dplyr)
 library(rvest)
@@ -23,12 +26,13 @@ download_and_unzip <- function(url_file, dest = 'data'){
   file.remove(path_to_zip)
 }
 
-read_page <- function(url_page){
-  # read page
+extract_file_urls <- function(url_page){
+  # get the page's html
   page <- read_html(url_page)
 
   # find the links
   # first, examine the webpage using developer tools within your browser
+  # to determine what selectors to use
   url_files <- page %>%
     html_elements('a') %>% # this selects all "a" html elements
     html_attr('href') # this extracts the html attribute "href"
@@ -45,7 +49,7 @@ read_page <- function(url_page){
 read_year_and_download <- function(year){
   # construct url and find the files
   base_url <- glue::glue('https://ftp.rma.usda.gov/pub/references/adm_livestock/{year}/')
-  found_files <- read_page(base_url)
+  found_files <- extract_file_urls(base_url)
   
   # download the files
   purrr::map(found_files, download_and_unzip)
@@ -54,4 +58,10 @@ read_year_and_download <- function(year){
 # download and unzip all the files in all the years
 purrr::map(2014:2022, read_year_and_download)
 ```
+
+## Error handling
+
+## Terms of use -- robots.txt
+
+## CSS selectors overview
 
